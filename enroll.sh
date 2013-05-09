@@ -143,11 +143,9 @@ user_install_dotfiles() {
 
 user_ssh_import_id() {
     if [ "x$enroll_ssh_import_id_user" != "x" ]; then
-        install_supported ubuntu:ssh-import-id && (
+        if [ "$(which ssh-import-id)" != "" ]; then
             ssh-import-id "$enroll_ssh_import_id_user"
-        ) || (
-            echo "[enroll] ssh-import-id is not supported here"
-        )
+        fi
     fi
 }
 
