@@ -21,6 +21,7 @@ esac
 enroll_packages=""
 enroll_nas=""
 enroll_nas_opts="defaults"
+enroll_ssh_import_id_user=""
 
 # Load configuration
 test -r ./enroll.conf && . ./enroll.conf
@@ -43,10 +44,11 @@ install_supported() {
         for supported_os_name in $base_os_list; do
             if [ $supported_os_name = $os_name ]; then
                 _install_dpkg $pkg_name
-                return
+                return 0
             fi
         done
     done
+    return 1
 }
 
 
@@ -139,6 +141,16 @@ user_install_dotfiles() {
     fi
 }
 
+user_ssh_import_id() {
+    if [ "x$enroll_ssh_import_id_user" != "x" ]; then
+        install_supported ubuntu:ssh-import-id && (
+            ssh-import-id "$enroll_ssh_import_id_user"
+        ) || (
+            echo "[enroll] ssh-import-id is not supported here"
+        )
+    fi
+}
+
 # Check if this is the --root , --user or normal startup
 case "$1" in
     --root)
@@ -148,6 +160,7 @@ case "$1" in
         ;;
     --user)
         user_install_dotfiles
+        user_ssh_import_id
         ;;
     '')
         # Say hi
